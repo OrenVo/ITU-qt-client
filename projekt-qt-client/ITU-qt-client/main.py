@@ -22,6 +22,6 @@ from src.login_window import LoginWindow
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     widget = LoginWindow()
-    # widget.center()
+    widget.center()
     widget.show()
     sys.exit(app.exec_())
