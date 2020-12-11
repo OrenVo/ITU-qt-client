@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import json
-# from src.error import eprint
-from error import eprint
+from src.error import eprint
+# from error import eprint
 import requests
 
 
 class Client:
-    def __init__(self):
-        self.address = "http://localhost:60606"
+    def __init__(self, addr="http://localhost:60606"):
+        self.address = addr
         self.code    = None
         self.session = requests.Session()
 
