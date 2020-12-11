@@ -16,6 +16,7 @@ class Client:
     def connect(self, username, password):
         return self.login(username, password)
 
+
     def __check_response(self, response):
         if response is None:
             eprint("No response received.")
@@ -68,7 +69,11 @@ class Client:
     def login(self, username, password):
         address = self.address + "/api/login"
         data = {"login": username, "password": password}
-        response = self.session.post(address, json=json.dumps(data), timeout=5)
+        try:
+            response = self.session.post(address, json=json.dumps(data), timeout=5)
+        except requests.exceptions.ConnectionError as e:
+            eprint(str(e))
+            return False
         return True if self.__check_response(response) else False
 
     def logout(self):
