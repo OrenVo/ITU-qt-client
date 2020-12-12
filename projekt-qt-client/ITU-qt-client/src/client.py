@@ -37,7 +37,7 @@ class Client:
     def start_timer(self, time, action, script):
         address = self.address + "/api/timer/start"
         data = {"time": time, "action": action, "script": script}
-        response = self.session.post(address, json=json.dumps(data), timeout=5)
+        response = self.session.post(address, json=data, timeout=5)
         return True if self.__check_response(response) else False
 
     def stop_timer(self):
@@ -53,7 +53,7 @@ class Client:
     def start_monitor(self, time, action, resource):
         address = self.address + "/api/monitor/start"
         data = {"time": time, "action": action, "resource": resource}
-        response = self.session.post(address, json=json.dumps(data), timeout=5)
+        response = self.session.post(address, json=data, timeout=5)
         return True if self.__check_response(response) else False
 
     def stop_monitor(self):
@@ -70,7 +70,7 @@ class Client:
         address = self.address + "/api/login"
         data = {"login": username, "password": password}
         try:
-            response = self.session.post(address, json=json.dumps(data), timeout=5)
+            response = self.session.post(address, json=data, timeout=5)
         except requests.exceptions.ConnectionError as e:
             eprint(str(e))
             return False

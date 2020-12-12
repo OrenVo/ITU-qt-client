@@ -3,7 +3,7 @@ from PySide2.QtWidgets import QApplication, QWidget, QLineEdit, QDesktopWidget, 
 from qtwidgets import PasswordEdit
 import datetime
 import sys
-from PySide2.QtCore import Qt, QTime
+from PySide2.QtCore import Qt, QTime, QDateTime
 
 
 class MainWindow(QWidget):
@@ -52,18 +52,21 @@ class MainWindow(QWidget):
         hour = qtime.hour()
         minute = qtime.minute()
         sec = qtime.second()
-        now = QTime.currentTime()
+        now = QDateTime.currentDateTime()
         seconds = hour * 60 * 60 + minute * 60 + sec
         now_plus_seconds = now.addSecs(seconds)
+        self.hours.date_time_in.dateTimeChanged.disconnect()
         self.hours.date_time_in.setDateTime(now_plus_seconds)
+        self.hours.date_time_in.dateTimeChanged.connect(self.change_timer)
+
 
     def change_timer(self):  # Will be called on hours change to change timer time
-        qtime = self.timer.time_in.time()
-
-        hour = qtime.hour()
-        minute = qtime.minute()
-        sec = qtime.second()
-
+        qdatetime = self.hours.date_time_in.dateTime()
+        seconds = QDateTime.currentDateTime().secsTo(qdatetime)
+        t0 = QTime(0, 0)
+        self.timer.time_in.timeChanged.disconnect()
+        self.timer.time_in.setTime(t0.addSecs(seconds))
+        self.timer.time_in.timeChanged.connect(self.change_hours)
 
     def center(self):
         qRect = self.frameGeometry()
@@ -103,6 +106,26 @@ class MonitorsTab(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.verticalLayout = QVBoxLayout(self)
+        # self.cpu_label
+        # self.cpu_percent
+        # self.cpu_time
+
+        # self.net_label
+        # self.net_kbs
+        # self.net_time
+
+        # self.ram_label
+        # self.ram_percent
+        # self.ram_time
+
+        # self.audio_label
+        # self.audio_time
+
+        # self.disp_label
+        # self.disp_time
+
+        # self.processes_combobox
 
 
 class SettingsTab(QWidget):
