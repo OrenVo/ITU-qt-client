@@ -2,21 +2,18 @@
 # This Python file uses the following encoding: utf-8
 import sys
 import os
-
+import signal
 
 from PySide2.QtWidgets import QApplication, QWidget, QLineEdit, QDesktopWidget
-# import qtwidgets
 from PySide2.QtCore import QFile
 from PySide2.QtUiTools import QUiLoader
 from src.client import Client
 from src.login_window import LoginWindow
 
 
-# def center(self):
-#     qRect = self.frameGeometry()
-#     center_point = QDesktopWidget().availableGeometry().center()
-#     qRect.moveCenter(center_point)
-#     self.move(qRect.topLeft())
+def signal_handler(sig, frame):
+    QApplication.quit()
+
 
 
 if __name__ == "__main__":
@@ -24,4 +21,5 @@ if __name__ == "__main__":
     widget = LoginWindow()
     widget.center()
     widget.show()
+    signal.signal(signal.SIGINT, signal_handler)
     sys.exit(app.exec_())

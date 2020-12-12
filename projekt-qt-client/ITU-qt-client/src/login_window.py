@@ -32,13 +32,16 @@ class LoginWindow(QWidget):
         self.login_btn = QPushButton('Log in', self)
         self.login_btn.setObjectName(u"login_btn")
         # self.login_btn.setAutoDefault(True)
-
+        self.error_label = QLabel(self)
+        self.error_label.setObjectName(u"error_label")
+        self.error_label.setStyleSheet('color: red')
         # Vertical layout
         self.verticalLayout_1.addWidget(self.label_1)
         self.verticalLayout_1.addWidget(self.username)
         self.verticalLayout_1.addWidget(self.label_2)
         self.verticalLayout_1.addWidget(self.password)
         self.verticalLayout_1.addWidget(self.login_btn, 0, Qt.AlignHCenter | Qt.AlignVCenter)
+        self.verticalLayout_1.addWidget(self.error_label)
         # Label text
         self.label_1.setText('Username:')
         self.label_2.setText('Password:')
@@ -48,14 +51,20 @@ class LoginWindow(QWidget):
         self.password.returnPressed.connect(self.login_btn.click)
         self.username.returnPressed.connect(self.login_btn.click)
         # Other
+        self.setTabOrder(self.username, self.password)
+        self.setTabOrder(self.password, self.login_btn)
         self.main_window = None
 
     def login(self):
         user = self.username.text()
         password = self.password.text()
         if not self.client.login(username=user, password=password):
-            ...  # show error
+            if self.client.code == 401:  # Bad login or password
+                self.error_label.setText('Bad username or password')
+            elif self.client.code == 403:  # Missing permissions
+                self.error_label.setText('Missing permissions')
         else:
+            self.error_label.setText('')
             self.hide()
             self.main_window = MainWindow(self)
             self.main_window.center()
