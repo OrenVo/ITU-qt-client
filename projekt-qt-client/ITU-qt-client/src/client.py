@@ -15,7 +15,6 @@ class Client:
     def connect(self, username, password):
         return self.login(username, password)
 
-
     def __check_response(self, response):
         if response is None:
             eprint("No response received.")
