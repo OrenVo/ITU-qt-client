@@ -3,7 +3,6 @@
 
 import json
 from src.error import eprint
-# from error import eprint
 import requests
 
 
@@ -15,7 +14,6 @@ class Client:
 
     def connect(self, username, password):
         return self.login(username, password)
-
 
     def __check_response(self, response):
         if response is None:
@@ -80,9 +78,3 @@ class Client:
         address = self.address + "/api/logout"
         response = self.session.get(address, timeout=5)
         return True if self.__check_response(response) else False
-
-
-if __name__ == "__main__":
-    client = Client()
-    result = client.connect("tester", "12345")
-    print(result)
