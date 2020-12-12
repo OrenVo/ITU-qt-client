@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import QApplication, QWidget, QLineEdit, QDesktopWidget, QVBoxLayout, QLabel, QPushButton, \
-    QMainWindow, QTabWidget, QTimeEdit, QComboBox, QDateTimeEdit
+    QMainWindow, QTabWidget, QTimeEdit, QComboBox, QDateTimeEdit, QHBoxLayout, QSpinBox
 from qtwidgets import PasswordEdit
 import datetime
 import sys
@@ -107,25 +107,59 @@ class MonitorsTab(QWidget):
         super().__init__()
         self.parent = parent
         self.verticalLayout = QVBoxLayout(self)
-        # self.cpu_label
-        # self.cpu_percent
-        # self.cpu_time
 
-        # self.net_label
-        # self.net_kbs
-        # self.net_time
+        # CPU
+        self.cpu_horizontal_layout = QHBoxLayout(self)
+        self.cpu_label = QLabel()
+        self.cpu_percent = QSpinBox()
+        self.cpu_percent.setRange(0, 100)
+        self.cpu_time = QTimeEdit()
+        self.cpu_horizontal_layout.addWidget(self.cpu_label)
+        self.cpu_horizontal_layout.addWidget(self.cpu_percent)
+        self.cpu_horizontal_layout.addWidget(self.cpu_time)
+        self.verticalLayout.addWidget(self.cpu_horizontal_layout)
 
-        # self.ram_label
-        # self.ram_percent
-        # self.ram_time
+        # NET
+        self.net_horizontal_layout = QHBoxLayout(self)
+        self.net_label = QLabel()
+        self.net_kbs = QSpinBox()
+        self.net_kbs.setRange(0, 1_000_000)
+        self.net_time = QTimeEdit()
+        self.net_horizontal_layout.addWidget(self.net_label)
+        self.net_horizontal_layout.addWidget(self.net_kbs)
+        self.net_horizontal_layout.addWidget(self.net_time)
+        self.verticalLayout.addWidget(self.net_horizontal_layout)
 
-        # self.audio_label
-        # self.audio_time
+        # RAM
+        self.ram_horizontal_layout = QHBoxLayout(self)
+        self.ram_label = QLabel()
+        self.ram_percent = QSpinBox()
+        self.ram_percent.setRange(0, 100)
+        self.ram_time = QTimeEdit()
+        self.ram_horizontal_layout.addWidget(self.ram_label)
+        self.ram_horizontal_layout.addWidget(self.ram_percent)
+        self.ram_horizontal_layout.addWidget(self.ram_time)
+        self.verticalLayout.addWidget(self.ram_horizontal_layout)
 
-        # self.disp_label
-        # self.disp_time
+        # Audio
+        self.audio_horizontal_layout = QHBoxLayout(self)
+        self.audio_label = QLabel()
+        self.audio_time = QTimeEdit()
+        self.audio_horizontal_layout.addWidget(self.audio_label)
+        self.audio_horizontal_layout.addWidget(self.audio_time)
+        self.verticalLayout.addWidget(self.audio_horizontal_layout)
 
-        # self.processes_combobox
+        # Display
+        self.disp_horizontal_layout = QHBoxLayout(self)
+        self.disp_label = QLabel()
+        self.disp_time = QTimeEdit()
+        self.disp_horizontal_layout.addWidget(self.disp_label)
+        self.disp_horizontal_layout.addWidget(self.disp_time)
+        self.verticalLayout.addWidget(self.disp_horizontal_layout)
+
+        # Processes
+        self.processes_combobox = QComboBox()
+        self.verticalLayout.addWidget(self.processes_combobox)
 
 
 class SettingsTab(QWidget):
