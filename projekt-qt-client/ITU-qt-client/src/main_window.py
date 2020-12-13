@@ -357,3 +357,31 @@ class SettingsTab(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.scrollArea = QScrollArea()
+        self.scrollWidget = QWidget()
+        self.verticalLayout = QVBoxLayout()
+
+        # Users
+        for user, level in self.parent.parent.client.permissons_view().items():
+            self.user_layout = QHBoxLayout()
+            self.user_label = QLabel()
+            self.user_label.setText(user)
+            self.user_rights = QComboBox()
+            self.user_rights.addItem("Full access")
+            self.user_rights.addItem("Actions & Scripts")
+            self.user_rights.addItem("Scripts only")
+            self.user_rights.addItem("Login only")
+            self.user_rights.addItem("Access denied")
+            self.user_rights.setCurrentIndex(int(level))
+            self.user_layout.addWidget(self.user_label)
+            self.user_layout.addWidget(self.user_rights)
+            self.verticalLayout.addLayout(self.user_layout)
+
+        self.scrollWidget.setLayout(self.verticalLayout)
+
+        # Scrolling
+        # self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setWidget(self.scrollWidget)
+        self.grid_layout = QGridLayout(self)
+        self.grid_layout.addWidget(self.scrollArea)
