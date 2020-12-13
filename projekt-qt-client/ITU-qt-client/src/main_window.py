@@ -232,6 +232,14 @@ class MainWindow(QWidget):
 
     def timers_timer_tick(self):
         self.timer.time_in.setTime(self.timer.time_in.time().addSecs(-1))
+        if self.timer.time_in.time() == QTime(0, 0):
+            self.timers_timer.stop()
+            self.status_timer.stop()
+            self.start.clicked.disconnect()
+            self.start.setText('Start timer')
+            self.start.clicked.connect(self.start_timer)
+            self.timer.time_in.setEnabled(True)
+            self.timer_running = False
 
     def stop_timer(self):
         self.timer.time_in.setEnabled(True)
