@@ -77,7 +77,7 @@ class Client:
         else:
             return response.json()
 
-    def permissons_view() -> dict:
+    def permissons_view(self) -> dict:
         address = self.address + "/api/permissions/view"
         response = self.session.get(address, timeout=5)
         if not self.__check_response(response):
@@ -85,7 +85,7 @@ class Client:
         else:
             return response.json()
 
-    def permissions_edit(username, level):
+    def permissions_edit(self, username, level):
         address = self.address + "/api/permissions/edit/" + username + "/" + level
         response = self.session.get(address, timeout=5)
         return True if self.__check_response(response) else False
