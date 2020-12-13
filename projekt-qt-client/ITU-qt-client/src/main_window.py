@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import QApplication, QWidget, QLineEdit, QDesktopWidget, QVBoxLayout, QLabel, QPushButton, \
-    QMainWindow, QTabWidget, QTimeEdit, QComboBox, QDateTimeEdit, QHBoxLayout, QSpinBox
+    QMainWindow, QTabWidget, QTimeEdit, QComboBox, QDateTimeEdit, QHBoxLayout, QSpinBox, QScrollArea, QGridLayout
 from qtwidgets import PasswordEdit
 import datetime
 import sys
@@ -177,7 +177,18 @@ class MainWindow(QWidget):
             ...  # TODO some error msg
 
     def submit_settings(self):
-        ...
+        translate = {
+            "Full access": 0,
+            "Actions & Scripts": 1,
+            "Scripts only": 2,
+            "Login only": 3,
+            "Access denied": 4
+        }
+
+        for box, user, level in zip(self.settings.box_list, self.settings.user_list, self.settings.level_list):
+            box_val = translate[box.itemText(self.actions.currentIndex())]
+            if box_val != level:
+                self.parent.client.permissions_edit(user, box_val)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.parent.client.logout()
@@ -360,6 +371,9 @@ class SettingsTab(QWidget):
         self.scrollArea = QScrollArea()
         self.scrollWidget = QWidget()
         self.verticalLayout = QVBoxLayout()
+        self.box_list = list()
+        self.user_list = list()
+        self.level_list = list()
 
         # Users
         for user, level in self.parent.parent.client.permissons_view().items():
@@ -376,11 +390,12 @@ class SettingsTab(QWidget):
             self.user_layout.addWidget(self.user_label)
             self.user_layout.addWidget(self.user_rights)
             self.verticalLayout.addLayout(self.user_layout)
-
-        self.scrollWidget.setLayout(self.verticalLayout)
+            self.box_list.append(self.user_rights)
+            self.user_list.append(user)
+            self.level_list.append(level)
 
         # Scrolling
-        # self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollWidget.setLayout(self.verticalLayout)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setWidget(self.scrollWidget)
         self.grid_layout = QGridLayout(self)

@@ -86,7 +86,7 @@ class Client:
             return response.json()
 
     def permissions_edit(self, username, level):
-        address = self.address + "/api/permissions/edit/" + username + "/" + level
+        address = self.address + "/api/permissions/edit/" + username + "/" + str(level)
         response = self.session.get(address, timeout=5)
         return True if self.__check_response(response) else False
 
