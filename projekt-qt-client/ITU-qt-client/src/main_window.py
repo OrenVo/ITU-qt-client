@@ -3,7 +3,8 @@ from PySide2.QtWidgets import QApplication, QWidget, QLineEdit, QDesktopWidget, 
 from qtwidgets import PasswordEdit
 import datetime
 import sys
-from PySide2.QtCore import Qt, QTime, QDateTime
+from PySide2.QtCore import Qt, QTime, QDateTime, QTimer
+from PySide2 import QtGui
 
 
 class MainWindow(QWidget):
@@ -40,8 +41,22 @@ class MainWindow(QWidget):
         self.vbox.addWidget(self.script_path)
 
         self.setLayout(self.vbox)
+
         self.timer_running = False
         self.monitor_running = False
+        self.timers_timer = QTimer()
+        self.timers_timer.setInterval(1_000)
+        self.timers_timer.timeout.connect(self.timers_timer_tick)
+        self.status_timer = QTimer()
+        self.status_timer.setInterval(5_000)
+        self.status_timer.timeout.connect(self.check_status)
+
+    def check_status(self):
+        timer = self.parent.client.stat_timer()
+        mon = self.parent.client.stat_monitor()
+        sec = timer.get('time_left')
+        self.timer.time_in.setTime(QTime(0, 0).addSecs(int(sec)))
+
 
     def start_timer(self):  # Starts Timer or Hours
         qtime = self.timer.time_in.time()
@@ -50,7 +65,12 @@ class MainWindow(QWidget):
         sec = qtime.second()
         seconds = hour * 60 * 60 + minute * 60 + sec
         script = self.script_path.text()
-        self.parent.client.start_timer(seconds, self.actions.itemText(self.actions.currentIndex()), script)
+        if self.parent.client.start_timer(seconds, self.actions.itemText(self.actions.currentIndex()), script):
+            self.timer.time_in.setEnabled(False)
+            self.timers_timer.start()
+            self.status_timer.start()
+            self.timer_running = True
+
 
     def change_hours(self):  # Will be called on timer change to change hours time
         qtime = self.timer.time_in.time()
@@ -159,29 +179,46 @@ class MainWindow(QWidget):
     def submit_settings(self):
         ...
 
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self.parent.client.logout()
+        event.accept()
+
     def tab_changed(self):
         if self.tabs.currentIndex() == 0:
-            self.start.setText('Start timer')
             self.script_path.setVisible(True)
             self.actions.setVisible(True)
-            self.start.clicked.disconnect()
-            self.start.clicked.connect(self.start_timer)
+            if self.timer_running is False:
+                self.start.setText('Start timer')
+                self.start.clicked.disconnect()
+                self.start.clicked.connect(self.start_timer)
+            else:
+                self.start.setText('Stop timer')
+                self.start.clicked.disconnect()
+                self.start.clicked.connect(self.stop_timer)
         elif self.tabs.currentIndex() == 1:
-            self.start.setText('Start timer')
-            self.script_path.setVisible(True)
-            self.actions.setVisible(True)
-            self.start.clicked.disconnect()
-            self.start.clicked.connect(self.start_timer)
+            if self.timer_running is False:
+                self.start.setText('Start timer')
+                self.start.clicked.disconnect()
+                self.start.clicked.connect(self.start_timer)
+            else:
+                self.start.setText('Stop timer')
+                self.start.clicked.disconnect()
+                self.start.clicked.connect(self.stop_timer)
         elif self.tabs.currentIndex() == 2:
             self.script_path.setVisible(True)
             self.actions.setVisible(True)
-            self.start.setText('Start monitor')
-            self.resources.processes_combobox.clear()
-            self.resources.processes_combobox.addItem('None')
-            for pid, name in self.parent.client.get_processes().items():
-                self.resources.processes_combobox.addItem(f'{name} : {pid}')
-            self.start.clicked.disconnect()
-            self.start.clicked.connect(self.start_monitor)
+            if self.monitor_running is False:
+                self.resources.processes_combobox.clear()
+                self.resources.processes_combobox.addItem('None')
+                for pid, name in self.parent.client.get_processes().items():
+                    self.resources.processes_combobox.addItem(f'{name} : {pid}')
+                self.start.clicked.disconnect()
+                self.start.setText('Start monitor')
+                self.start.clicked.connect(self.start_monitor)
+            else:
+                self.start.clicked.disconnect()
+                self.start.setText('Stop monitor')
+                self.start.clicked.connect(self.stop_monitor)
         elif self.tabs.currentIndex() == 3:
             self.start.setText('Submit settings')
             self.script_path.setVisible(False)
@@ -189,6 +226,26 @@ class MainWindow(QWidget):
 
             self.start.clicked.disconnect()
             self.start.clicked.connect(self.submit_settings)
+
+    def timers_timer_tick(self):
+        self.timer.time_in.setTime(self.timer.time_in.time().addSecs(-1))
+
+    def stop_timer(self):
+        self.timer.time_in.setEnabled(True)
+        self.timers_timer.stop()
+        self.parent.client.stop_timer()
+        self.timer_running = False
+        self.start.clicked.disconnect()
+        self.start.setText('Start timer')
+        self.start.clicked.connect(self.start_timer)
+        self.status_timer.stop()
+
+    def stop_monitor(self):
+        self.parent.client.stop_monitor()
+        self.monitor_running = False
+        self.start.clicked.disconnect()
+        self.start.setText('Start monitor')
+        self.start.clicked.connect(self.start_monitor)
 
     def center(self):
         qRect = self.frameGeometry()

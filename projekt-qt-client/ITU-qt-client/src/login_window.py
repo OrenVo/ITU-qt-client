@@ -1,4 +1,5 @@
 from PySide2.QtWidgets import QApplication, QWidget, QLineEdit, QDesktopWidget, QVBoxLayout, QLabel, QPushButton, QMainWindow, QCheckBox
+from PySide2.QtGui import QIcon
 from qtwidgets import PasswordEdit
 from src.client import Client
 from src.main_window import MainWindow
@@ -10,6 +11,7 @@ from PySide2.QtCore import Qt
 class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
+        self.setWindowIcon(QIcon('icon.png'))
         if not self.objectName():
             self.setObjectName(u"LoginWindow")
         self.setWindowTitle('Shutdown Tool Login')
@@ -67,6 +69,7 @@ class LoginWindow(QWidget):
             self.error_label.setText('')
             self.hide()
             self.main_window = MainWindow(self)
+            self.main_window.setWindowIcon(QIcon('icon.png'))
             self.main_window.center()
             self.main_window.show()
 
