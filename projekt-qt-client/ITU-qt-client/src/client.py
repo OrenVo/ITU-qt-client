@@ -43,10 +43,13 @@ class Client:
         response = self.session.get(address, timeout=5)
         return True if self.__check_response(response) else False
 
-    def stat_timer(self):
+    def stat_timer(self) -> dict:
         address = self.address + "/api/timer/status"
         response = self.session.get(address, timeout=5)
-        return True if self.__check_response(response) else False
+        if not self.__check_response(response):
+            return dict()
+        else:
+            return response.json()
 
     def start_monitor(self, time, action, resource):
         address = self.address + "/api/monitor/start"
@@ -59,10 +62,21 @@ class Client:
         response = self.session.get(address, timeout=5)
         return True if self.__check_response(response) else False
 
-    def stat_monitor(self):
+    def stat_monitor(self) -> dict:
         address = self.address + "/api/monitor/status"
         response = self.session.get(address, timeout=5)
-        return True if self.__check_response(response) else False
+        if not self.__check_response(response):
+            return dict()
+        else:
+            return response.json()
+
+    def get_processes(self) -> dict:
+        address = self.address + "/api/get/processes"
+        response = self.session.get(address, timeout=5)
+        if not self.__check_response(response):
+            return dict()
+        else:
+            return response.json()
 
     def login(self, username, password):
         address = self.address + "/api/login"
