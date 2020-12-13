@@ -51,10 +51,9 @@ class Client:
         else:
             return response.json()
 
-    def start_monitor(self, time, action, resource):
+    def start_monitor(self, monitors):
         address = self.address + "/api/monitor/start"
-        data = {"time": time, "action": action, "resource": resource}
-        response = self.session.post(address, json=data, timeout=5)
+        response = self.session.post(address, json=monitors, timeout=5)
         return True if self.__check_response(response) else False
 
     def stop_monitor(self):

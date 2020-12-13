@@ -32,9 +32,12 @@ class MainWindow(QWidget):
         self.actions.addItems(['Poweroff', 'Reboot', 'Script'])
         self.start = QPushButton('Start timer', self)
         self.start.clicked.connect(self.start_timer)
+        self.script_path = QLineEdit(self)
         self.vbox.addWidget(self.tabs)
         self.vbox.addWidget(self.actions)
         self.vbox.addWidget(self.start, Qt.AlignVCenter)
+
+        self.vbox.addWidget(self.script_path)
 
         self.setLayout(self.vbox)
         self.timer_running = False
@@ -46,7 +49,7 @@ class MainWindow(QWidget):
         minute = qtime.minute()
         sec = qtime.second()
         seconds = hour * 60 * 60 + minute * 60 + sec
-        script = ''
+        script = self.script_path.text()
         self.parent.client.start_timer(seconds, self.actions.itemText(self.actions.currentIndex()), script)
 
     def change_hours(self):  # Will be called on timer change to change hours time
@@ -71,10 +74,87 @@ class MainWindow(QWidget):
 
     def start_monitor(self):
         request = list()
-        cpu = {
-            self.resources.cpu_percent,
-            self.resources.cpu_time
-        }
+        # monitor_data['time']
+        # Actions[monitor_data['action']]
+        # monitor_data['resource']
+        # monitor_data.get('value')
+        # monitor_data['script']
+
+        if self.resources.cpu_percent.value() > 0 and self.resources.cpu_time.time() > QTime(0, 0):  # CPU
+            qtime = self.resources.cpu_time.time()
+            hour = qtime.hour()
+            minute = qtime.minute()
+            sec = qtime.second()
+            seconds = hour * 60 * 60 + minute * 60 + sec
+            request.append({
+                'value': self.resources.cpu_percent.value(),
+                'time': seconds,
+                'resource': 'CPU',
+                'action': self.actions.itemText(self.actions.currentIndex()),
+                'script': self.script_path.text()
+            })
+        if self.resources.net_kbs > 0 and self.resources.net_time.time() > QTime(0, 0):  # NET
+            qtime = self.resources.net_time.time()
+            hour = qtime.hour()
+            minute = qtime.minute()
+            sec = qtime.second()
+            seconds = hour * 60 * 60 + minute * 60 + sec
+            request.append({
+                'value': self.resources.net_kbs.value(),
+                'time': seconds,
+                'resource': 'Network',
+                'action': self.actions.itemText(self.actions.currentIndex()),
+                'script': self.script_path.text()
+            })
+        if self.resources.ram_kbs > 0 and self.resources.ram_time.time() > QTime(0, 0):  # RAM
+            qtime = self.resources.ram_time.time()
+            hour = qtime.hour()
+            minute = qtime.minute()
+            sec = qtime.second()
+            seconds = hour * 60 * 60 + minute * 60 + sec
+            request.append({
+                'value': self.resources.net_kbs.value(),
+                'time': seconds,
+                'resource': 'RAM',
+                'action': self.actions.itemText(self.actions.currentIndex()),
+                'script': self.script_path.text()
+            })
+        if self.resources.audio_time.time() > QTime(0, 0):  # Audio
+            qtime = self.resources.audio_time.time()
+            hour = qtime.hour()
+            minute = qtime.minute()
+            sec = qtime.second()
+            seconds = hour * 60 * 60 + minute * 60 + sec
+            request.append({
+                'value': None,
+                'time': seconds,
+                'resource': 'Sound',
+                'action': self.actions.itemText(self.actions.currentIndex()),
+                'script': self.script_path.text()
+            })
+        if self.resources.disp_time.time() > QTime(0, 0):  # Display
+            qtime = self.resources.disp_time.time()
+            hour = qtime.hour()
+            minute = qtime.minute()
+            sec = qtime.second()
+            seconds = hour * 60 * 60 + minute * 60 + sec
+            request.append({
+                'value': None,
+                'time': seconds,
+                'resource': 'Display',
+                'action': self.actions.itemText(self.actions.currentIndex()),
+                'script': self.script_path.text()
+            })
+        if self.resources.processes_combobox.itemText(self.resources.processes_combobox.currentIndex()) != 'None':
+            request.append({
+                'value': int(self.resources.processes_combobox.itemText(self.resources.processes_combobox.currentIndex()).split(':')[1]),
+                'time': None,
+                'resource': 'Process',
+                'action': self.actions.itemText(self.actions.currentIndex()),
+                'script': self.script_path.text()
+            })
+        if not self.parent.client.start_monitor(request):
+            ...  # TODO some error msg
 
     def submit_settings(self):
         ...
@@ -94,6 +174,10 @@ class MainWindow(QWidget):
             self.start.clicked.connect(self.start_monitor)
         elif self.tabs.currentIndex() == 3:
             self.start.setText('Submit settings')
+            self.resources.processes_combobox.clear()
+            self.resources.processes_combobox.addItem('None')
+            for pid, name in self.parent.parent.client.get_processes().items():
+                self.resources.rocesses_combobox.addItem(f'{name} : {pid}')
             self.start.clicked.disconnect()
             self.start.clicked.connect(self.submit_settings)
 
