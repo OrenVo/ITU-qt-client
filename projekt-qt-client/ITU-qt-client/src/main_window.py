@@ -67,6 +67,9 @@ class MainWindow(QWidget):
         script = self.script_path.text()
         if self.parent.client.start_timer(seconds, self.actions.itemText(self.actions.currentIndex()), script):
             self.timer.time_in.setEnabled(False)
+            self.start.setText('Stop timer')
+            self.start.clicked.disconnect()
+            self.start.clicked.connect(self.stop_timer)
             self.timers_timer.start()
             self.status_timer.start()
             self.timer_running = True
@@ -236,6 +239,8 @@ class MainWindow(QWidget):
         self.parent.client.stop_timer()
         self.timer_running = False
         self.start.clicked.disconnect()
+        self.start.setText('Start timer')
+        self.start.clicked.connect(self.start_timer)
         self.start.setText('Start timer')
         self.start.clicked.connect(self.start_timer)
         self.status_timer.stop()
