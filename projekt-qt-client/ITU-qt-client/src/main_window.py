@@ -162,18 +162,26 @@ class MainWindow(QWidget):
     def tab_changed(self):
         if self.tabs.currentIndex() == 0:
             self.start.setText('Start timer')
+            self.script_path.setVisible(True)
+            self.actions.setVisible(True)
             self.start.clicked.disconnect()
             self.start.clicked.connect(self.start_timer)
         elif self.tabs.currentIndex() == 1:
             self.start.setText('Start timer')
+            self.script_path.setVisible(True)
+            self.actions.setVisible(True)
             self.start.clicked.disconnect()
             self.start.clicked.connect(self.start_timer)
         elif self.tabs.currentIndex() == 2:
+            self.script_path.setVisible(True)
+            self.actions.setVisible(True)
             self.start.setText('Start monitor')
             self.start.clicked.disconnect()
             self.start.clicked.connect(self.start_monitor)
         elif self.tabs.currentIndex() == 3:
             self.start.setText('Submit settings')
+            self.script_path.setVisible(False)
+            self.actions.setVisible(False)
             self.resources.processes_combobox.clear()
             self.resources.processes_combobox.addItem('None')
             for pid, name in self.parent.parent.client.get_processes().items():
