@@ -93,7 +93,7 @@ class MainWindow(QWidget):
                 'action': self.actions.itemText(self.actions.currentIndex()),
                 'script': self.script_path.text()
             })
-        if self.resources.net_kbs > 0 and self.resources.net_time.time() > QTime(0, 0):  # NET
+        if self.resources.net_kbs.value() > 0 and self.resources.net_time.time() > QTime(0, 0):  # NET
             qtime = self.resources.net_time.time()
             hour = qtime.hour()
             minute = qtime.minute()
@@ -106,14 +106,14 @@ class MainWindow(QWidget):
                 'action': self.actions.itemText(self.actions.currentIndex()),
                 'script': self.script_path.text()
             })
-        if self.resources.ram_kbs > 0 and self.resources.ram_time.time() > QTime(0, 0):  # RAM
+        if self.resources.ram_percent.value() > 0 and self.resources.ram_time.time() > QTime(0, 0):  # RAM
             qtime = self.resources.ram_time.time()
             hour = qtime.hour()
             minute = qtime.minute()
             sec = qtime.second()
             seconds = hour * 60 * 60 + minute * 60 + sec
             request.append({
-                'value': self.resources.net_kbs.value(),
+                'value': self.resources.ram_percent.value(),
                 'time': seconds,
                 'resource': 'RAM',
                 'action': self.actions.itemText(self.actions.currentIndex()),
