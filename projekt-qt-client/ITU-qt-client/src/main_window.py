@@ -30,14 +30,15 @@ class MainWindow(QWidget):
         self.tabs.currentChanged.connect(self.tab_changed)
 
         self.actions = QComboBox(self)
-        self.actions.addItems(['Poweroff', 'Reboot', 'Script'])
+        self.actions.addItems(['Poweroff', 'Reboot', 'Suspend', 'Script'])
         self.start = QPushButton('Start timer', self)
         self.start.clicked.connect(self.start_timer)
         self.script_path = QLineEdit(self)
+        self.script_label = QLabel("Script path:", self)
         self.vbox.addWidget(self.tabs)
         self.vbox.addWidget(self.actions)
         self.vbox.addWidget(self.start, Qt.AlignVCenter)
-
+        self.vbox.addWidget(self.script_label, Qt.AlignLeft)
         self.vbox.addWidget(self.script_path)
 
         self.setLayout(self.vbox)
@@ -54,9 +55,10 @@ class MainWindow(QWidget):
     def check_status(self):
         timer = self.parent.client.stat_timer()
         mon = self.parent.client.stat_monitor()
+        print(mon, file=sys.stderr)
         sec = timer.get('time_left')
-        self.timer.time_in.setTime(QTime(0, 0).addSecs(int(sec)))
-
+        if timer:
+            self.timer.time_in.setTime(QTime(0, 0).addSecs(int(sec)))
 
     def start_timer(self):  # Starts Timer or Hours
         qtime = self.timer.time_in.time()
@@ -73,7 +75,6 @@ class MainWindow(QWidget):
             self.timers_timer.start()
             self.status_timer.start()
             self.timer_running = True
-
 
     def change_hours(self):  # Will be called on timer change to change hours time
         qtime = self.timer.time_in.time()
@@ -177,7 +178,13 @@ class MainWindow(QWidget):
                 'script': self.script_path.text()
             })
         if not self.parent.client.start_monitor(request):
-            ...  # TODO some error msg
+            print("[Client error]: Error when starting monitor", file=sys.stderr)
+            return
+        self.status_timer.start()
+        self.start.clicked.disconnect()
+        self.start.setText('Stop monitor')
+        self.start.clicked.connect(self.stop_monitor)
+
 
     def submit_settings(self):
         translate = {
@@ -267,6 +274,7 @@ class MainWindow(QWidget):
     def stop_monitor(self):
         self.parent.client.stop_monitor()
         self.monitor_running = False
+        self.status_timer.stop()
         self.start.clicked.disconnect()
         self.start.setText('Start monitor')
         self.start.clicked.connect(self.start_monitor)
