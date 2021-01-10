@@ -57,7 +57,6 @@ class MainWindow(QWidget):
         mon = self.parent.client.stat_monitor()
         if not mon and self.monitor_running:
             self.stop_monitor()
-        print(mon, file=sys.stderr)
         sec = timer.get('time_left')
         if timer:
             self.timer.time_in.setTime(QTime(0, 0).addSecs(int(sec)))
@@ -199,7 +198,6 @@ class MainWindow(QWidget):
         self.start.setText('Stop monitor')
         self.start.clicked.connect(self.stop_monitor)
 
-
     def submit_settings(self):
         translate = {
             "Full access": 0,
@@ -210,7 +208,7 @@ class MainWindow(QWidget):
         }
 
         for box, user, level in zip(self.settings.box_list, self.settings.user_list, self.settings.level_list):
-            box_val = translate[box.itemText(self.actions.currentIndex())]
+            box_val = translate[box.itemText(box.currentIndex())]
             if box_val != level:
                 self.parent.client.permissions_edit(user, box_val)
 
@@ -221,6 +219,7 @@ class MainWindow(QWidget):
     def tab_changed(self):
         if self.tabs.currentIndex() == 0:
             self.script_path.setVisible(True)
+            self.script_label.setVisible(True)
             self.actions.setVisible(True)
             if self.timer_running is False:
                 self.start.setText('Start timer')
@@ -231,6 +230,7 @@ class MainWindow(QWidget):
                 self.start.clicked.disconnect()
                 self.start.clicked.connect(self.stop_timer)
         elif self.tabs.currentIndex() == 1:
+            self.script_label.setVisible(True)
             if self.timer_running is False:
                 self.start.setText('Start timer')
                 self.start.clicked.disconnect()
@@ -242,6 +242,7 @@ class MainWindow(QWidget):
         elif self.tabs.currentIndex() == 2:
             self.script_path.setVisible(True)
             self.actions.setVisible(True)
+            self.script_label.setVisible(True)
             if self.monitor_running is False:
                 self.resources.processes_combobox.clear()
                 self.resources.processes_combobox.addItem('None')
@@ -258,7 +259,7 @@ class MainWindow(QWidget):
             self.start.setText('Submit settings')
             self.script_path.setVisible(False)
             self.actions.setVisible(False)
-
+            self.script_label.setVisible(False)
             self.start.clicked.disconnect()
             self.start.clicked.connect(self.submit_settings)
 
