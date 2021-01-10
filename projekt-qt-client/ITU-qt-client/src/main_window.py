@@ -55,10 +55,14 @@ class MainWindow(QWidget):
     def check_status(self):
         timer = self.parent.client.stat_timer()
         mon = self.parent.client.stat_monitor()
+        if not mon and self.monitor_running:
+            self.stop_monitor()
         print(mon, file=sys.stderr)
         sec = timer.get('time_left')
         if timer:
             self.timer.time_in.setTime(QTime(0, 0).addSecs(int(sec)))
+        else:
+            self.timer_running = False
 
     def start_timer(self):  # Starts Timer or Hours
         qtime = self.timer.time_in.time()
@@ -180,7 +184,17 @@ class MainWindow(QWidget):
         if not self.parent.client.start_monitor(request):
             print("[Client error]: Error when starting monitor", file=sys.stderr)
             return
+        self.resources.cpu_percent.setEnabled(False)
+        self.resources.cpu_time.setEnabled(False)
+        self.resources.net_horizontal_layout.setEnabled(False)
+        self.resources.net_kbs.setEnabled(False)
+        self.resources.net_time.setEnabled(False)
+        self.resources.ram_percent.setEnabled(False)
+        self.resources.ram_time.setEnabled(False)
+        self.resources.audio_time.setEnabled(False)
+        self.resources.disp_time.setEnabled(False)
         self.status_timer.start()
+        self.monitor_running = True
         self.start.clicked.disconnect()
         self.start.setText('Stop monitor')
         self.start.clicked.connect(self.stop_monitor)
@@ -278,6 +292,15 @@ class MainWindow(QWidget):
         self.start.clicked.disconnect()
         self.start.setText('Start monitor')
         self.start.clicked.connect(self.start_monitor)
+        self.resources.cpu_percent.setEnabled(True)
+        self.resources.cpu_time.setEnabled(True)
+        self.resources.net_horizontal_layout.setEnabled(True)
+        self.resources.net_kbs.setEnabled(True)
+        self.resources.net_time.setEnabled(True)
+        self.resources.ram_percent.setEnabled(True)
+        self.resources.ram_time.setEnabled(True)
+        self.resources.audio_time.setEnabled(True)
+        self.resources.disp_time.setEnabled(True)
 
     def center(self):
         qRect = self.frameGeometry()
