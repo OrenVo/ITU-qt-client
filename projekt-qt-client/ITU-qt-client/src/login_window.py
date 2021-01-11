@@ -61,9 +61,9 @@ class LoginWindow(QWidget):
         user = self.username.text()
         password = self.password.text()
         if not self.client.login(username=user, password=password):
-            if self.client.code == 401:  # Bad login or password
+            if self.client.code == 403:  # Bad login or password
                 self.error_label.setText('Bad username or password')
-            elif self.client.code == 403:  # Missing permissions
+            elif self.client.code == 401:  # Missing permissions
                 self.error_label.setText('Missing permissions')
         else:
             self.error_label.setText('')

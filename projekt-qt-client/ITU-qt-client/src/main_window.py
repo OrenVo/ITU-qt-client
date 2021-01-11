@@ -35,11 +35,15 @@ class MainWindow(QWidget):
         self.start.clicked.connect(self.start_timer)
         self.script_path = QLineEdit(self)
         self.script_label = QLabel("Script path:", self)
+        self.logout_btn = QPushButton('Logout', self)
+        self.logout_btn.setVisible(False)
+        self.logout_btn.clicked.connect(self.logout)
         self.vbox.addWidget(self.tabs)
         self.vbox.addWidget(self.actions)
         self.vbox.addWidget(self.start, Qt.AlignVCenter)
         self.vbox.addWidget(self.script_label, Qt.AlignLeft)
         self.vbox.addWidget(self.script_path)
+        self.vbox.addWidget(self.logout_btn)
 
         self.setLayout(self.vbox)
 
@@ -51,6 +55,26 @@ class MainWindow(QWidget):
         self.status_timer = QTimer()
         self.status_timer.setInterval(5_000)
         self.status_timer.timeout.connect(self.check_status)
+        self.check_init_state()
+        self.change_hours()
+
+    def check_init_state(self):
+        mon = self.parent.client.stat_monitor()
+        timer = self.parent.client.stat_timer()
+        if mon:
+            self.monitor_running = True
+        if timer:
+            if timer['running']:
+                self.timer.time_in.setTime(QTime(0,0).addSecs(timer['time_left']))
+                self.timer.time_in.setEnabled(False)
+                self.start.setText('Stop timer')
+                self.start.clicked.disconnect()
+                self.start.clicked.connect(self.stop_timer)
+                self.timers_timer.start()
+                self.status_timer.start()
+                self.timer_running = True
+            else:
+                self.timer.time_in.setTime(QTime().addSecs(timer['time_set']))
 
     def check_status(self):
         timer = self.parent.client.stat_timer()
@@ -98,6 +122,11 @@ class MainWindow(QWidget):
         self.timer.time_in.timeChanged.disconnect()
         self.timer.time_in.setTime(t0.addSecs(seconds))
         self.timer.time_in.timeChanged.connect(self.change_hours)
+
+    def logout(self):
+        self.parent.client.logout()
+        self.hide()
+        self.parent.show()
 
     def start_monitor(self):
         request = list()
@@ -218,6 +247,7 @@ class MainWindow(QWidget):
 
     def tab_changed(self):
         if self.tabs.currentIndex() == 0:
+            self.logout_btn.setVisible(False)
             self.script_path.setVisible(True)
             self.script_label.setVisible(True)
             self.actions.setVisible(True)
@@ -230,6 +260,7 @@ class MainWindow(QWidget):
                 self.start.clicked.disconnect()
                 self.start.clicked.connect(self.stop_timer)
         elif self.tabs.currentIndex() == 1:
+            self.logout_btn.setVisible(False)
             self.script_label.setVisible(True)
             if self.timer_running is False:
                 self.start.setText('Start timer')
@@ -240,6 +271,7 @@ class MainWindow(QWidget):
                 self.start.clicked.disconnect()
                 self.start.clicked.connect(self.stop_timer)
         elif self.tabs.currentIndex() == 2:
+            self.logout_btn.setVisible(False)
             self.script_path.setVisible(True)
             self.actions.setVisible(True)
             self.script_label.setVisible(True)
@@ -256,6 +288,7 @@ class MainWindow(QWidget):
                 self.start.setText('Stop monitor')
                 self.start.clicked.connect(self.stop_monitor)
         elif self.tabs.currentIndex() == 3:
+            self.logout_btn.setVisible(True)
             self.start.setText('Submit settings')
             self.script_path.setVisible(False)
             self.actions.setVisible(False)
